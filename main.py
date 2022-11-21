@@ -11,32 +11,15 @@ Options:
     <pacc>  : position accuracy in meter
 """
 
-import sys
 import os
 import time
-import glob
 import struct
 from typing import Type
 from serial import Serial
 from mgaonline import MgaOnline
 from ubxmsg import UbxMsg
-from serial.tools import list_ports
 from docopt import docopt
-
-def get_port_name() -> str:
-  if sys.platform.startswith('win'):
-    coms = [port for port, _, hwid in list_ports.comports() if '1546:01A9' in hwid]
-    if not coms:
-      raise Exception("Can't find a COM port")
-    return coms[0]
-  elif sys.platform.startswith('linux'):
-    pass
-  elif sys.platform.startswith('darwin'): # for MacOS
-    devs = glob.glob('/dev/tty*usb*')
-    if not devs:
-      raise Exception("Can't find a device")
-    return devs[0]
-  raise Exception('Unsupported platform')
+from portname import get_port_name
 
 def wait_for_ack(ser: Type[Serial]) -> None:
   r = ser.read_until(b'\xb5') # wait for UBX preamble sync char1
